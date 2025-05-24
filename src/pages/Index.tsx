@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 import TimerCard from '@/components/TimerCard';
 import CreateTimerDialog from '@/components/CreateTimerDialog';
+import SettingsDialog from '@/components/SettingsDialog';
+import { useSettings } from '@/contexts/SettingsContext';
 import { playAlarmSound } from '@/utils/audioUtils';
 
 export interface Timer {
@@ -20,6 +22,7 @@ export interface Timer {
 const Index = () => {
   const [timers, setTimers] = useState<Timer[]>([]);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const { alarmVolume } = useSettings();
 
   // Update timers every second
   useEffect(() => {
@@ -31,7 +34,7 @@ const Index = () => {
             if (newTimeLeft === 0) {
               // Timer completed - play alarm sound
               try {
-                playAlarmSound();
+                playAlarmSound(alarmVolume);
               } catch (error) {
                 console.log('Could not play alarm sound:', error);
               }
@@ -55,7 +58,7 @@ const Index = () => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [alarmVolume]);
 
   const createTimer = (name: string, notes: string, minutes: number, seconds: number) => {
     const duration = minutes * 60 + seconds;
@@ -96,8 +99,16 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">Multi Timer</h1>
-          <p className="text-gray-600">Manage multiple timers with custom names and notes</p>
+          <div className="flex justify-between items-start mb-4">
+            <div className="flex-1" />
+            <div className="flex-1">
+              <h1 className="text-4xl font-bold text-gray-800 mb-2">Multi Timer</h1>
+              <p className="text-gray-600">Manage multiple timers with custom names and notes</p>
+            </div>
+            <div className="flex-1 flex justify-end">
+              <SettingsDialog />
+            </div>
+          </div>
         </div>
 
         <div className="flex justify-center mb-8">

@@ -1,5 +1,5 @@
 
-export const playAlarmSound = () => {
+export const playAlarmSound = (volume: number = 0.3) => {
   // Create audio context for better browser compatibility
   const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
   
@@ -15,7 +15,7 @@ export const playAlarmSound = () => {
     oscillator.type = 'sine';
     
     gainNode.gain.setValueAtTime(0, audioContext.currentTime + delay);
-    gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + delay + 0.01);
+    gainNode.gain.linearRampToValueAtTime(volume, audioContext.currentTime + delay + 0.01);
     gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + delay + duration);
     
     oscillator.start(audioContext.currentTime + delay);
