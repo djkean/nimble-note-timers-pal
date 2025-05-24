@@ -1,10 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 import TimerCard from '@/components/TimerCard';
 import CreateTimerDialog from '@/components/CreateTimerDialog';
+import { playAlarmSound } from '@/utils/audioUtils';
 
 export interface Timer {
   id: string;
@@ -29,7 +29,13 @@ const Index = () => {
           if (timer.isRunning && timer.timeLeft > 0) {
             const newTimeLeft = timer.timeLeft - 1;
             if (newTimeLeft === 0) {
-              // Timer completed
+              // Timer completed - play alarm sound
+              try {
+                playAlarmSound();
+              } catch (error) {
+                console.log('Could not play alarm sound:', error);
+              }
+              
               toast({
                 title: "Timer Completed!",
                 description: `${timer.name} has finished.`,
