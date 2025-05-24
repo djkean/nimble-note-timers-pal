@@ -16,6 +16,8 @@ interface CreateTimerDialogProps {
 interface CustomPreset {
   id: string;
   label: string;
+  name: string;
+  notes: string;
   minutes: number;
   seconds: number;
 }
@@ -80,6 +82,8 @@ const CreateTimerDialog: React.FC<CreateTimerDialogProps> = ({ isOpen, onClose, 
       const newPreset: CustomPreset = {
         id: Date.now().toString(),
         label: newPresetLabel.trim(),
+        name: name.trim(),
+        notes: notes.trim(),
         minutes,
         seconds
       };
@@ -106,10 +110,16 @@ const CreateTimerDialog: React.FC<CreateTimerDialogProps> = ({ isOpen, onClose, 
     });
   };
 
-  const applyPreset = (presetMinutes: number, presetSeconds: number) => {
+  const applyPreset = (presetMinutes: number, presetSeconds: number, presetName?: string, presetNotes?: string) => {
     setMinutes(presetMinutes);
     setSeconds(presetSeconds);
-    console.log('Applied preset:', presetMinutes, 'min', presetSeconds, 'sec');
+    if (presetName !== undefined) {
+      setName(presetName);
+    }
+    if (presetNotes !== undefined) {
+      setNotes(presetNotes);
+    }
+    console.log('Applied preset:', presetMinutes, 'min', presetSeconds, 'sec', presetName, presetNotes);
   };
 
   const presetTimes = [
@@ -207,12 +217,13 @@ const CreateTimerDialog: React.FC<CreateTimerDialogProps> = ({ isOpen, onClose, 
                         type="button"
                         variant="outline"
                         size="sm"
-                        onClick={() => applyPreset(preset.minutes, preset.seconds)}
+                        onClick={() => applyPreset(preset.minutes, preset.seconds, preset.name, preset.notes)}
                         className={`w-full text-xs ${
-                          minutes === preset.minutes && seconds === preset.seconds
+                          minutes === preset.minutes && seconds === preset.seconds && name === preset.name && notes === preset.notes
                             ? 'bg-green-50 border-green-300 text-green-700'
                             : ''
                         }`}
+                        title={`Name: ${preset.name}\nNotes: ${preset.notes}\nTime: ${preset.minutes}m ${preset.seconds}s`}
                       >
                         {preset.label}
                       </Button>
@@ -242,7 +253,7 @@ const CreateTimerDialog: React.FC<CreateTimerDialogProps> = ({ isOpen, onClose, 
                   className="text-sm"
                 />
                 <div className="text-xs text-gray-600 mb-2">
-                  This will save the current time ({minutes}m {seconds}s) as a reusable preset
+                  This will save the current timer details (name: "{name}", notes: "{notes}", time: {minutes}m {seconds}s) as a reusable preset
                 </div>
                 <div className="flex gap-2">
                   <Button
