@@ -1,10 +1,11 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Plus, X } from 'lucide-react';
 
 interface CreateTimerDialogProps {
   isOpen: boolean;
@@ -12,11 +13,34 @@ interface CreateTimerDialogProps {
   onCreate: (name: string, notes: string, minutes: number, seconds: number) => void;
 }
 
+interface CustomPreset {
+  id: string;
+  label: string;
+  minutes: number;
+  seconds: number;
+}
+
 const CreateTimerDialog: React.FC<CreateTimerDialogProps> = ({ isOpen, onClose, onCreate }) => {
   const [name, setName] = useState('');
   const [notes, setNotes] = useState('');
   const [minutes, setMinutes] = useState(5);
   const [seconds, setSeconds] = useState(0);
+  const [customPresets, setCustomPresets] = useState<CustomPreset[]>([]);
+  const [showAddPreset, setShowAddPreset] = useState(false);
+  const [newPresetLabel, setNewPresetLabel] = useState('');
+
+  // Load custom presets from localStorage on component mount
+  useEffect(() => {
+    const saved = localStorage.getItem('timerCustomPresets');
+    if (saved) {
+      setCustomPresets(JSON.parse(saved));
+    }
+  }, []);
+
+  // Save custom presets to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('timerCustomPresets', JSON.stringify(customPresets));
+  }, [customPresets]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,6 +61,26 @@ const CreateTimerDialog: React.FC<CreateTimerDialogProps> = ({ isOpen, onClose, 
     setNotes('');
     setMinutes(5);
     setSeconds(0);
+    setShowAddPreset(false);
+    setNewPresetLabel('');
+  };
+
+  const addCustomPreset = () => {
+    if (newPresetLabel.trim() && (minutes > 0 || seconds > 0)) {
+      const newPreset: CustomPreset = {
+        id: Date.now().toString(),
+        label: newPresetLabel.trim(),
+        minutes,
+        seconds
+      };
+      setCustomPresets(prev => [...prev, newPreset]);
+      setNewPresetLabel('');
+      setShowAddPreset(false);
+    }
+  };
+
+  const removeCustomPreset = (id: string) => {
+    setCustomPresets(prev => prev.filter(preset => preset.id !== id));
   };
 
   const presetTimes = [
@@ -86,7 +130,19 @@ const CreateTimerDialog: React.FC<CreateTimerDialogProps> = ({ isOpen, onClose, 
           </div>
 
           <div className="space-y-4">
-            <Label className="text-sm font-medium text-gray-700">Duration</Label>
+            <div className="flex items-center justify-between">
+              <Label className="text-sm font-medium text-gray-700">Duration</Label>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setShowAddPreset(!showAddPreset)}
+                className="text-xs"
+              >
+                <Plus className="w-3 h-3 mr-1" />
+                Add Preset
+              </Button>
+            </div>
             
             <div className="grid grid-cols-3 gap-2">
               {presetTimes.map((preset) => (
@@ -109,6 +165,74 @@ const CreateTimerDialog: React.FC<CreateTimerDialogProps> = ({ isOpen, onClose, 
                 </Button>
               ))}
             </div>
+
+            {customPresets.length > 0 && (
+              <div className="grid grid-cols-3 gap-2">
+                {customPresets.map((preset) => (
+                  <div key={preset.id} className="relative">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setMinutes(preset.minutes);
+                        setSeconds(preset.seconds);
+                      }}
+                      className={`w-full ${
+                        minutes === preset.minutes && seconds === preset.seconds
+                          ? 'bg-green-50 border-green-300 text-green-700'
+                          : ''
+                      }`}
+                    >
+                      {preset.label}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeCustomPreset(preset.id)}
+                      className="absolute -top-1 -right-1 w-4 h-4 p-0 bg-red-500 hover:bg-red-600 text-white rounded-full"
+                    >
+                      <X className="w-2 h-2" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {showAddPreset && (
+              <div className="p-3 border rounded-lg bg-gray-50 space-y-2">
+                <Input
+                  value={newPresetLabel}
+                  onChange={(e) => setNewPresetLabel(e.target.value)}
+                  placeholder="Preset name (e.g., Quick break)"
+                  className="text-sm"
+                />
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={addCustomPreset}
+                    disabled={!newPresetLabel.trim() || (minutes === 0 && seconds === 0)}
+                    className="flex-1"
+                  >
+                    Add
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setShowAddPreset(false);
+                      setNewPresetLabel('');
+                    }}
+                    className="flex-1"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            )}
 
             <div className="flex items-center gap-4">
               <div className="flex-1">
