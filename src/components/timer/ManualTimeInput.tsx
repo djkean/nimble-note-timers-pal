@@ -28,7 +28,7 @@ const ManualTimeInput: React.FC<ManualTimeInputProps> = ({
             id="minutes"
             type="number"
             min="0"
-            max="999"
+            max="9999"
             value={minutes}
             onChange={(e) => onMinutesChange(Math.max(0, parseInt(e.target.value) || 0))}
             className="text-center"
