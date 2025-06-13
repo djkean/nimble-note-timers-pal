@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState, useEffect, useRef } from 'react';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
@@ -17,21 +18,29 @@ export interface Timer {
   isRunning: boolean;
   isCompleted: boolean;
   createdAt: Date;
+  startTime?: number; // timestamp when timer was started
+  pausedTime?: number; // accumulated paused time
 }
 
 const Index = () => {
   const [timers, setTimers] = useState<Timer[]>([]);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const { alarmVolume } = useSettings();
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Update timers every second
+  // Update timers using actual time elapsed instead of just interval ticks
   useEffect(() => {
-    const interval = setInterval(() => {
+    const updateTimers = () => {
+      const currentTime = Date.now();
+      
       setTimers(prevTimers => 
         prevTimers.map(timer => {
-          if (timer.isRunning && timer.timeLeft > 0) {
-            const newTimeLeft = timer.timeLeft - 1;
-            if (newTimeLeft === 0) {
+          if (timer.isRunning && timer.timeLeft > 0 && timer.startTime) {
+            const elapsedTime = Math.floor((currentTime - timer.startTime) / 1000);
+            const pausedTime = timer.pausedTime || 0;
+            const newTimeLeft = timer.duration - elapsedTime + pausedTime;
+            
+            if (newTimeLeft <= 0) {
               // Timer completed - play alarm sound
               try {
                 playAlarmSound(alarmVolume);
@@ -43,6 +52,7 @@ const Index = () => {
                 title: "Timer Completed!",
                 description: `${timer.name} has finished.`,
               });
+              
               return {
                 ...timer,
                 timeLeft: 0,
@@ -50,14 +60,22 @@ const Index = () => {
                 isCompleted: true
               };
             }
-            return { ...timer, timeLeft: newTimeLeft };
+            
+            return { ...timer, timeLeft: Math.max(0, newTimeLeft) };
           }
           return timer;
         })
       );
-    }, 1000);
+    };
 
-    return () => clearInterval(interval);
+    // Update every 100ms for smoother display, but use actual time calculations
+    intervalRef.current = setInterval(updateTimers, 100);
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
   }, [alarmVolume]);
 
   const createTimer = (name: string, notes: string, minutes: number, seconds: number) => {
@@ -81,9 +99,33 @@ const Index = () => {
   };
 
   const updateTimer = (id: string, updates: Partial<Timer>) => {
-    setTimers(prev => prev.map(timer => 
-      timer.id === id ? { ...timer, ...updates } : timer
-    ));
+    setTimers(prev => prev.map(timer => {
+      if (timer.id === id) {
+        const updatedTimer = { ...timer, ...updates };
+        
+        // Handle start/pause logic with timestamps
+        if (updates.isRunning !== undefined) {
+          if (updates.isRunning && !timer.isRunning) {
+            // Starting timer
+            updatedTimer.startTime = Date.now();
+            updatedTimer.pausedTime = timer.duration - timer.timeLeft;
+          } else if (!updates.isRunning && timer.isRunning) {
+            // Pausing timer
+            updatedTimer.pausedTime = timer.duration - timer.timeLeft;
+            delete updatedTimer.startTime;
+          }
+        }
+        
+        // Handle reset
+        if (updates.timeLeft === timer.duration) {
+          updatedTimer.pausedTime = 0;
+          delete updatedTimer.startTime;
+        }
+        
+        return updatedTimer;
+      }
+      return timer;
+    }));
   };
 
   const deleteTimer = (id: string) => {
