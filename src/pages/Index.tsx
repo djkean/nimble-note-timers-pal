@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -138,14 +137,14 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors">
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-8">
           <div className="flex justify-between items-start mb-4">
             <div className="flex-1" />
             <div className="flex-1">
-              <h1 className="text-4xl font-bold text-gray-800 mb-2">Multi Timer</h1>
-              <p className="text-gray-600">Manage multiple timers with custom names and notes</p>
+              <h1 className="text-4xl font-bold text-gray-800 dark:text-gray-100 mb-2">Multi Timer</h1>
+              <p className="text-gray-600 dark:text-gray-300">Manage multiple timers with custom names and notes</p>
             </div>
             <div className="flex-1 flex justify-end">
               <SettingsDialog />
@@ -156,7 +155,7 @@ const Index = () => {
         <div className="flex justify-center mb-8">
           <Button 
             onClick={() => setIsCreateDialogOpen(true)}
-            className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-6 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+            className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 dark:from-blue-600 dark:to-indigo-700 dark:hover:from-blue-700 dark:hover:to-indigo-800 text-white px-6 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
           >
             <Plus className="w-5 h-5 mr-2" />
             Create New Timer
@@ -165,13 +164,13 @@ const Index = () => {
 
         {timers.length === 0 ? (
           <div className="text-center py-16">
-            <div className="text-gray-400 mb-4">
-              <div className="w-24 h-24 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-                <Plus className="w-12 h-12 text-gray-300" />
+            <div className="text-gray-400 dark:text-gray-500 mb-4">
+              <div className="w-24 h-24 mx-auto mb-4 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
+                <Plus className="w-12 h-12 text-gray-300 dark:text-gray-600" />
               </div>
             </div>
-            <h3 className="text-xl font-semibold text-gray-600 mb-2">No timers yet</h3>
-            <p className="text-gray-500">Create your first timer to get started!</p>
+            <h3 className="text-xl font-semibold text-gray-600 dark:text-gray-300 mb-2">No timers yet</h3>
+            <p className="text-gray-500 dark:text-gray-400">Create your first timer to get started!</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
