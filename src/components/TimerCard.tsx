@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Play, Pause, RotateCcw, Trash2, Edit3, Save, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -54,10 +53,10 @@ const TimerCard: React.FC<TimerCardProps> = ({ timer, onUpdate, onDelete }) => {
   return (
     <Card className={`relative overflow-hidden transition-all duration-300 hover:shadow-lg transform hover:scale-[1.02] ${
       timer.isCompleted 
-        ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-200' 
+        ? 'bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 border-green-200 dark:border-green-700' 
         : timer.isRunning 
-        ? 'bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200' 
-        : 'bg-white border-gray-200'
+        ? 'bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 border-blue-200 dark:border-blue-700' 
+        : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
     }`}>
       {timer.isRunning && (
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-400 to-indigo-500 animate-pulse" />
@@ -99,7 +98,7 @@ const TimerCard: React.FC<TimerCardProps> = ({ timer, onUpdate, onDelete }) => {
           ) : (
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
-                <h3 className="font-semibold text-lg text-gray-800 truncate">
+                <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-100 truncate">
                   {timer.name}
                 </h3>
                 <Button
@@ -112,7 +111,7 @@ const TimerCard: React.FC<TimerCardProps> = ({ timer, onUpdate, onDelete }) => {
                 </Button>
               </div>
               {timer.notes && (
-                <p className="text-sm text-gray-600 leading-relaxed">
+                <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
                   {timer.notes}
                 </p>
               )}
@@ -124,7 +123,7 @@ const TimerCard: React.FC<TimerCardProps> = ({ timer, onUpdate, onDelete }) => {
               size="sm"
               variant="ghost"
               onClick={() => onDelete(timer.id)}
-              className="text-red-500 hover:text-red-700 hover:bg-red-50"
+              className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/30"
             >
               <Trash2 className="w-4 h-4" />
             </Button>
@@ -136,16 +135,16 @@ const TimerCard: React.FC<TimerCardProps> = ({ timer, onUpdate, onDelete }) => {
         <div className="text-center">
           <div className={`text-4xl font-mono font-bold ${
             timer.isCompleted 
-              ? 'text-green-600' 
+              ? 'text-green-600 dark:text-green-400' 
               : timer.timeLeft <= 10 
-              ? 'text-red-500 animate-pulse' 
+              ? 'text-red-500 dark:text-red-400 animate-pulse' 
               : timer.isRunning 
-              ? 'text-blue-600' 
-              : 'text-gray-700'
+              ? 'text-blue-600 dark:text-blue-400' 
+              : 'text-gray-700 dark:text-gray-200'
           }`}>
             {formatTime(timer.timeLeft)}
           </div>
-          <div className="text-sm text-gray-500 mt-1">
+          <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
             Total: {formatTime(timer.duration)}
           </div>
         </div>
@@ -157,7 +156,7 @@ const TimerCard: React.FC<TimerCardProps> = ({ timer, onUpdate, onDelete }) => {
               ? '[&>div]:bg-green-500' 
               : timer.isRunning 
               ? '[&>div]:bg-blue-500' 
-              : '[&>div]:bg-gray-400'
+              : '[&>div]:bg-gray-400 dark:[&>div]:bg-gray-500'
           }`}
         />
 
@@ -183,7 +182,7 @@ const TimerCard: React.FC<TimerCardProps> = ({ timer, onUpdate, onDelete }) => {
             size="sm"
             variant="outline"
             onClick={handleReset}
-            className="hover:bg-gray-50"
+            className="hover:bg-gray-50 dark:hover:bg-gray-700"
           >
             <RotateCcw className="w-4 h-4" />
           </Button>
@@ -191,7 +190,7 @@ const TimerCard: React.FC<TimerCardProps> = ({ timer, onUpdate, onDelete }) => {
 
         {timer.isCompleted && (
           <div className="text-center">
-            <span className="inline-block px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+            <span className="inline-block px-3 py-1 bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300 rounded-full text-sm font-medium">
               ✓ Completed
             </span>
           </div>
